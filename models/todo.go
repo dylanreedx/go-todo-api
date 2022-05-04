@@ -1,6 +1,6 @@
 package models
 
 type Todo struct {
-	Title    string `json:"title"`
-	Complete bool   `json:"complete"`
+	Title    string `bson:"title" json:"title"`
+	Complete bool   `bson:"complete" json:"complete"`
 }
