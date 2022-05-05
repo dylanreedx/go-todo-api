@@ -1,8 +1,10 @@
 package models
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type User struct {
-	Id       string `bson:"_id" json:"id"`
-	Email    string `bson:"email" json:"email"`
-	Username string `bson:"username" json:"username"`
-	Password string `bson:"password" json:"password"`
+	ID       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Email    string             `bson:"email" json:"email"`
+	Username string             `bson:"username" json:"username"`
+	Password string             `bson:"password" json:"password"`
 }
