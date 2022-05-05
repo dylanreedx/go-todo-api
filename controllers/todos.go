@@ -151,7 +151,7 @@ func UpdateTodo(c *fiber.Ctx) error {
 		"$set": todo,
 	}
 
-	_, err = todoCollection.UpdateByID(ctx, bson.M{"_id": objId}, update)
+	_, err = todoCollection.UpdateOne(ctx, bson.M{"_id": objId}, update)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
