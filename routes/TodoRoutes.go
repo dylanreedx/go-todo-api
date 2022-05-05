@@ -20,8 +20,9 @@ func SetupRoutes(app *fiber.App) {
 }
 
 func TodoRoutes(route fiber.Router) {
-
 	route.Get("/", controllers.GetAllTodos)
 	route.Post("/create", controllers.CreateTodo)
-	route.Get("/todo/:id", controllers.GetTodoById)
+	route.Get("/:id", controllers.GetTodoById)
+	route.Delete("/:id", controllers.DeleteTodo)
+	route.Put("/:id", controllers.UpdateTodo)
 }

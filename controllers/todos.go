@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/carbondesigned/go-todo/db"
 	"github.com/carbondesigned/go-todo/models"
+	"github.com/carbondesigned/go-todo/utils"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -39,7 +39,8 @@ func CreateTodo(c *fiber.Ctx) error {
 // we're returning the data in a JSON format
 func GetAllTodos(c *fiber.Ctx) error {
 	var todos []models.Todo
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := utils.TodoContext()
+	defer cancel()
 
 	filter := bson.M{}
 	findOptions := options.Find()
@@ -48,7 +49,7 @@ func GetAllTodos(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success": false,
-			"message": "todos Not found",
+			"message": "Todos Not found",
 			"error":   err,
 		})
 	}
@@ -63,15 +64,23 @@ func GetAllTodos(c *fiber.Ctx) error {
 	})
 }
 
+// We're using the `fiber.Ctx` struct to get the `id` parameter from the URL, then we're using the
+// `primitive.ObjectIDFromHex` function to convert the `id` parameter to a `primitive.ObjectID` type.
+// Then we're using the `FindOne` function to find the todo with the `id` parameter. If the todo is
+// found, we're decoding the todo into the `todo` variable and returning it as a JSON response. If the todo is not found, we're returning a JSON response with an error message
 func GetTodoById(c *fiber.Ctx) error {
 	var todo models.Todo
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := utils.TodoContext()
+	defer cancel()
 	objId, err := primitive.ObjectIDFromHex(c.Params("id"))
+	if err != nil {
+		return errors.New(err.Error())
+	}
 	findResult := todoCollection.FindOne(ctx, bson.M{"_id": objId})
 	if err := findResult.Err(); err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success": false,
-			"message": "todo not found",
+			"message": "Todo not found",
 			"error":   err,
 		})
 	}
@@ -80,7 +89,7 @@ func GetTodoById(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success": false,
-			"message": "todo not found",
+			"message": "Todo not found",
 			"error":   err,
 		})
 	}
@@ -91,20 +100,69 @@ func GetTodoById(c *fiber.Ctx) error {
 	})
 }
 
+// It takes the id of the todo from the URL, converts it to an ObjectID, and then deletes the todo from the database
 func DeleteTodo(c *fiber.Ctx) error {
-	var todo models.Todo
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := utils.TodoContext()
+	defer cancel()
 	objId, err := primitive.ObjectIDFromHex(c.Params("id"))
 	if err != nil {
 		return errors.New(err.Error())
 	}
 
-	findResult := todoCollection.FindOneAndDelete(ctx, bson.M{"_id": objId})
-	if err := findResult.Err(); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+	_, err = todoCollection.DeleteOne(ctx, bson.M{"_id": objId})
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
 			"success": false,
-			"message": "todo not found",
+			"message": "Todo failed to delete",
 			"error":   err,
 		})
 	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"success": true,
+		"message": "Todo deleted successfully",
+	})
+}
+
+func UpdateTodo(c *fiber.Ctx) error {
+	var todo = new(models.Todo)
+
+	ctx, cancel := utils.TodoContext()
+	defer cancel()
+	if err := c.BodyParser(todo); err != nil {
+		errors.New(err.Error())
+		return c.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": "Failed to parse body",
+			"error":   err,
+		})
+	}
+
+	objId, err := primitive.ObjectIDFromHex(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "Todo Not found",
+			"error":   err,
+		})
+	}
+
+	update := bson.M{
+		"$set": todo,
+	}
+
+	_, err = todoCollection.UpdateByID(ctx, bson.M{"_id": objId}, update)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": "Todo failed to update",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"success": true,
+		"message": "Todo Updated",
+	})
+
 }
