@@ -2,7 +2,9 @@ package db
 
 import (
 	"context"
+	"os"
 
+	"github.com/carbondesigned/go-todo/utils"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -10,7 +12,8 @@ import (
 func MongoClient() (client *mongo.Client) {
 	// Any time you make requests to a server (the database, in this case), you should create a context using context.TODO() that the server will accept.
 	// TODO fix .env variables
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb+srv://dylan:!Blackmonkeywhiterabbit@cluster0.mezvi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"))
+	utils.GetEnv()
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_CONNECTION_URI")))
 	if err != nil {
 		panic(err)
 	}

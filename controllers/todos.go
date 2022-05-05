@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -88,4 +89,22 @@ func GetTodoById(c *fiber.Ctx) error {
 		"data":    todo,
 		"success": true,
 	})
+}
+
+func DeleteTodo(c *fiber.Ctx) error {
+	var todo models.Todo
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	objId, err := primitive.ObjectIDFromHex(c.Params("id"))
+	if err != nil {
+		return errors.New(err.Error())
+	}
+
+	findResult := todoCollection.FindOneAndDelete(ctx, bson.M{"_id": objId})
+	if err := findResult.Err(); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "todo not found",
+			"error":   err,
+		})
+	}
 }
