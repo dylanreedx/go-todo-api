@@ -1,15 +1,16 @@
 package utils
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/joho/godotenv"
 )
 
-func GetEnv() {
+// LoadEnv() loads the .env file and returns an error if it fails
+func LoadEnv() {
 	err := godotenv.Load(".env")
 
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		fmt.Printf("Failed to load .env %v", err)
 	}
 }

@@ -130,7 +130,6 @@ func UpdateTodo(c *fiber.Ctx) error {
 	ctx, cancel := utils.TodoContext()
 	defer cancel()
 	if err := c.BodyParser(todo); err != nil {
-		errors.New(err.Error())
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
 			"message": "Failed to parse body",

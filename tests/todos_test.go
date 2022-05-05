@@ -17,21 +17,28 @@ func TestGetAllTodos(t *testing.T) {
 		description  string
 		route        string
 		expectedCode int
+		method       string
 	}{
 		{
-			description:  "get HTTP status 200",
+			description:  "successfully fetch all todos",
 			route:        "/",
 			expectedCode: 200,
+			method:       "GET",
+		},
+		{
+			description:  "successfully update a todo",
+			route:        "/:id",
+			expectedCode: 201,
+			method:       "PUT",
 		},
 	}
-
 	app := fiber.New()
 
 	routes.SetupRoutes(app)
 	// Iterate through test single test cases
 	for _, test := range tests {
 		// Create a new http request with the route from the test case
-		req := httptest.NewRequest("GET", test.route, nil)
+		req := httptest.NewRequest(test.method, test.route, nil)
 
 		// Perform the request plain with the app,
 		// the second argument is a request latency
