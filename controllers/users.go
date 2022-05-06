@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -26,12 +25,32 @@ var userCollection = db.MongoClient().Database("todo-app").Collection("users")
 
 func Signup(c *fiber.Ctx) error {
 	user := new(models.User)
+	password := c.FormValue("password")
 
+	ctx, cancel := utils.Context()
+	defer cancel()
 	if err := c.BodyParser(user); err != nil {
 		return err
 	}
 
-	result, err := userCollection.InsertOne(context.TODO(), user)
+	// check if user already exists
+	var userFound models.User
+	err := userCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&userFound)
+	if err == nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+			"success": false,
+			"message": "User already exists",
+		})
+	}
+
+	// hash password
+	hashedPassword, err := utils.HashPassword(password)
+	if err != nil {
+		return err
+	}
+	user.Password = hashedPassword
+
+	result, err := userCollection.InsertOne(ctx, user)
 
 	if err != nil {
 		panic(err)
@@ -44,11 +63,11 @@ func Signup(c *fiber.Ctx) error {
 	})
 }
 
-// It takes the email and password from the request body, finds the user in the database, compares the
-// password from the request body with the password from the database, and if they match, it creates a
-// JWT token and sends it back to the client
+// It takes the email and password from the request body, checks if the user exists in the database, if
+// it does, it compares the password from the request body with the hashed password from the database,
+// if they match, it creates a JWT token and sends it back to the client
 func Signin(c *fiber.Ctx) error {
-	pass := c.FormValue("password")
+	password := c.FormValue("password")
 	email := c.FormValue("email")
 
 	var userFound models.User
@@ -64,12 +83,11 @@ func Signin(c *fiber.Ctx) error {
 		})
 	}
 
-	// compare password from post body with password from db
-	if pass != userFound.Password || email != userFound.Email {
+	// compare hashed password from db with password from post body
+	if !utils.CheckPasswordHash(password, userFound.Password) || userFound.Email != email {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"success": false,
-			"message": "Credentials do not match",
-			"error":   err,
+			"message": "Wrong Credentials",
 		})
 	}
 	// Create the Claims
