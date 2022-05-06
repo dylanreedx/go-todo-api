@@ -10,9 +10,10 @@ In the process of learning, I thought it would be best to learn in a self-guided
   - [x] base auth routes
   - [ ] create user (signup)
     - [x] base route
-  - [ ] login user
-    - [ ] match if credentials are valid
+  - [x] login user
+    - [x] match if credentials are valid
   - [ ] encrypt passwords
     - [ ] bcrypt
-  - [ ] set up jwt
-    - [ ] go-jwt
+  - [x] set up jwt
+    - ~~[ ] go-jwt~~
+    - [x] fiber middleware

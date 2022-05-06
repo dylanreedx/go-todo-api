@@ -13,7 +13,6 @@ import (
 func main() {
 	app := fiber.New()
 	app.Use(cors.New())
-
 	routes.SetupRoutes(app)
 
 	// ping mongo

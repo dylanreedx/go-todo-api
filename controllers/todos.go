@@ -39,7 +39,7 @@ func CreateTodo(c *fiber.Ctx) error {
 // we're returning the data in a JSON format
 func GetAllTodos(c *fiber.Ctx) error {
 	var todos []models.Todo
-	ctx, cancel := utils.TodoContext()
+	ctx, cancel := utils.Context()
 	defer cancel()
 
 	filter := bson.M{}
@@ -70,7 +70,7 @@ func GetAllTodos(c *fiber.Ctx) error {
 // found, we're decoding the todo into the `todo` variable and returning it as a JSON response. If the todo is not found, we're returning a JSON response with an error message
 func GetTodoById(c *fiber.Ctx) error {
 	var todo models.Todo
-	ctx, cancel := utils.TodoContext()
+	ctx, cancel := utils.Context()
 	defer cancel()
 	objId, err := primitive.ObjectIDFromHex(c.Params("id"))
 	if err != nil {
@@ -102,7 +102,7 @@ func GetTodoById(c *fiber.Ctx) error {
 
 // It takes the id of the todo from the URL, converts it to an ObjectID, and then deletes the todo from the database
 func DeleteTodo(c *fiber.Ctx) error {
-	ctx, cancel := utils.TodoContext()
+	ctx, cancel := utils.Context()
 	defer cancel()
 	objId, err := primitive.ObjectIDFromHex(c.Params("id"))
 	if err != nil {
@@ -127,7 +127,7 @@ func DeleteTodo(c *fiber.Ctx) error {
 func UpdateTodo(c *fiber.Ctx) error {
 	var todo = new(models.Todo)
 
-	ctx, cancel := utils.TodoContext()
+	ctx, cancel := utils.Context()
 	defer cancel()
 	if err := c.BodyParser(todo); err != nil {
 		return c.Status(400).JSON(fiber.Map{

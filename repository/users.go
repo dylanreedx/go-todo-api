@@ -19,7 +19,7 @@ var UserCollection = db.MongoClient().Database("todo-app").Collection("users")
 
 func GetUserById(c *fiber.Ctx) error {
 	var user models.User
-	ctx, cancel := utils.TodoContext()
+	ctx, cancel := utils.Context()
 	defer cancel()
 	objId, err := primitive.ObjectIDFromHex(c.Params("id"))
 	if err != nil {

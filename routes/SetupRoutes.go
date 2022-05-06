@@ -1,6 +1,10 @@
 package routes
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/carbondesigned/go-todo/utils"
+	"github.com/gofiber/fiber/v2"
+	jwtware "github.com/gofiber/jwt/v3"
+)
 
 func SetupRoutes(app *fiber.App) {
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -10,9 +14,13 @@ func SetupRoutes(app *fiber.App) {
 			"github_repo": "https://github.com/MikeFMeyer/catchphrase-go-mongodb-rest-api",
 		})
 	})
-
 	api := app.Group("/api")
-
 	TodoRoutes(api.Group("/todos"))
 	AuthRoutes(api.Group("/auth"))
+
+	// JWT Middleware
+	app.Use(jwtware.New(jwtware.Config{
+		SigningKey: utils.Secret(),
+	}))
+
 }
