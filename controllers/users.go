@@ -43,6 +43,22 @@ func Signup(c *fiber.Ctx) error {
 		})
 	}
 
+	// simple password length validation
+	if len(password) < 6 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "Password must be at least 6 characters",
+		})
+	}
+
+	// validation of username
+	if len(user.Username) < 4 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "Username must be at least 4 characters",
+		})
+	}
+
 	// hash password
 	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
