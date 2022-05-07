@@ -9,6 +9,7 @@ import (
 	"github.com/carbondesigned/go-todo/models"
 	"github.com/carbondesigned/go-todo/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -24,6 +25,11 @@ func CreateTodo(c *fiber.Ctx) error {
 	if err := c.BodyParser(todo); err != nil {
 		return err
 	}
+
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id := claims["id"].(string)
+	todo.UserId = id
 
 	result, err := todoCollection.InsertOne(context.TODO(), todo)
 

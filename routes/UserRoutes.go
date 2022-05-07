@@ -6,7 +6,7 @@ import (
 )
 
 func UserRoutes(route fiber.Router) {
-	route.Get("/", controllers.GetAllUsers)
-	route.Get("/:id", controllers.GetUserById)
-	route.Delete("/:id", controllers.DeleteUser)
+	route.Get("/", controllers.AuthRequired(), controllers.GetAllUsers)
+	route.Get("/:id", controllers.AuthRequired(), controllers.GetUserById)
+	route.Delete("/:id", controllers.AuthRequired(), controllers.DeleteUser)
 }

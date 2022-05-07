@@ -1,9 +1,7 @@
 package routes
 
 import (
-	"github.com/carbondesigned/go-todo/utils"
 	"github.com/gofiber/fiber/v2"
-	jwtware "github.com/gofiber/jwt/v3"
 )
 
 func SetupRoutes(app *fiber.App) {
@@ -18,10 +16,4 @@ func SetupRoutes(app *fiber.App) {
 	TodoRoutes(api.Group("/todos"))
 	AuthRoutes(api.Group("/auth"))
 	UserRoutes(api.Group("/user"))
-
-	// JWT Middleware
-	app.Use(jwtware.New(jwtware.Config{
-		SigningKey: utils.Secret(),
-	}))
-
 }

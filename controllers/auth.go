@@ -6,9 +6,21 @@ import (
 	"github.com/carbondesigned/go-todo/models"
 	"github.com/carbondesigned/go-todo/utils"
 	"github.com/gofiber/fiber/v2"
+	jwtware "github.com/gofiber/jwt/v3"
 	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson"
 )
+
+func AuthRequired() func(c *fiber.Ctx) error {
+	return jwtware.New(jwtware.Config{
+		SigningKey: utils.Secret(),
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Unauthorized",
+			})
+		},
+	})
+}
 
 func Signup(c *fiber.Ctx) error {
 	user := new(models.User)
@@ -104,6 +116,7 @@ func Signin(c *fiber.Ctx) error {
 	}
 	// Create the Claims
 	claims := jwt.MapClaims{
+		"id":    userFound.ID,
 		"email": email,
 		"exp":   time.Now().Add(time.Hour * 72).Unix(),
 	}

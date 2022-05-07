@@ -7,6 +7,7 @@ In the process of learning, I thought it would be best to learn in a self-guided
 ## TODO
 
 - [ ] auth
+
   - [x] base auth routes
   - [x] create user (signup)
     - [x] base route
@@ -27,12 +28,14 @@ In the process of learning, I thought it would be best to learn in a self-guided
       return c.SendString("Welcome " + name)
     }
     ```
+
 - [ ] organization / architecture
 
   - [ ] proper organization of return statuses for routes
   - [ ] find more efficient way to test
+  - [ ] controllers vs. repositories
 
 - [ ] frontend
-- [ ] scaffold
-  - [ ] Next.js
-  - [ ] typescript
+  - [ ] scaffold
+    - [ ] Next.js
+    - [ ] typescript
