@@ -17,6 +17,7 @@ func SetupRoutes(app *fiber.App) {
 	api := app.Group("/api")
 	TodoRoutes(api.Group("/todos"))
 	AuthRoutes(api.Group("/auth"))
+	UserRoutes(api.Group("/user"))
 
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{

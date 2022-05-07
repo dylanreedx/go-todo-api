@@ -54,9 +54,9 @@ func GetAllTodos(c *fiber.Ctx) error {
 		})
 	}
 	for cursor.Next(ctx) {
-		var catchphrase models.Todo
-		cursor.Decode(&catchphrase)
-		todos = append(todos, catchphrase)
+		var todo models.Todo
+		cursor.Decode(&todo)
+		todos = append(todos, todo)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
