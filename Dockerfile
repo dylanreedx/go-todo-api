@@ -13,6 +13,8 @@ COPY --from=build /api /api
 
 COPY --from=build /app/.env .
 
-EXPOSE 8080
+EXPOSE 3001
 USER nonroot:nonroot
 ENTRYPOINT [ "/api" ]
+
+

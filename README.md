@@ -35,6 +35,11 @@ In the process of learning, I thought it would be best to learn in a self-guided
   - [ ] find more efficient way to test
   - [ ] controllers vs. repositories
 
+- [ ] deploy
+
+  - [ ] figure out docker and maybe kubernetes
+  - [ ] how to deploy to heroku or digital ocean
+
 - [ ] frontend
   - [ ] scaffold
     - [ ] Next.js
