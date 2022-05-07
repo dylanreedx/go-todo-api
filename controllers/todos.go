@@ -45,12 +45,21 @@ func CreateTodo(c *fiber.Ctx) error {
 // we're returning the data in a JSON format
 func GetAllTodos(c *fiber.Ctx) error {
 	var todos []models.Todo
+	var todo models.Todo
 	ctx, cancel := utils.Context()
 	defer cancel()
 
-	filter := bson.M{}
-	findOptions := options.Find()
-	cursor, err := todoCollection.Find(ctx, filter, findOptions)
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id := claims["id"].(string)
+	todo.UserId = id
+
+	// filter the todos with the userId
+	filter := bson.M{"userId": id}
+	// sort the todos by createdAt
+	sort := options.Find().SetSort(bson.M{"createdAt": -1})
+	// find the todos
+	cursor, err := todoCollection.Find(ctx, filter, sort)
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -82,20 +91,18 @@ func GetTodoById(c *fiber.Ctx) error {
 	if err != nil {
 		return errors.New(err.Error())
 	}
-	findResult := todoCollection.FindOne(ctx, bson.M{"_id": objId})
-	if err := findResult.Err(); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"success": false,
-			"message": "Todo not found",
-			"error":   err,
-		})
-	}
 
-	err = findResult.Decode(&todo)
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id := claims["id"].(string)
+	todo.UserId = id
+
+	filter := bson.M{"_id": objId, "userId": id}
+	err = todoCollection.FindOne(ctx, filter).Decode(&todo)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success": false,
-			"message": "Todo not found",
+			"message": "Todo Not found",
 			"error":   err,
 		})
 	}
@@ -144,6 +151,12 @@ func UpdateTodo(c *fiber.Ctx) error {
 	}
 
 	objId, err := primitive.ObjectIDFromHex(c.Params("id"))
+
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id := claims["id"].(string)
+	todo.UserId = id
+
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success": false,
@@ -156,7 +169,7 @@ func UpdateTodo(c *fiber.Ctx) error {
 		"$set": todo,
 	}
 
-	_, err = todoCollection.UpdateOne(ctx, bson.M{"_id": objId}, update)
+	_, err = todoCollection.UpdateOne(ctx, bson.M{"_id": objId, "userId": id}, update)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
