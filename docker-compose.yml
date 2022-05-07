@@ -1,0 +1,12 @@
+version: '3.9'
+services:
+  web:
+    image: dylanreed/go-todo-api
+    environment:
+      - MONGODB_CONNECTION_URI=${MONGODB_CONNECTION_URI}
+      - SECRET=${SECRET}
+    env_file:
+      - .env
+    build: .
+    ports:
+      - '80:80'
