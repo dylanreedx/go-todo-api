@@ -96,8 +96,12 @@ func Signup(c *fiber.Ctx) error {
 // it does, it compares the password from the request body with the hashed password from the database,
 // if they match, it creates a JWT token and sends it back to the client
 func Signin(c *fiber.Ctx) error {
-	password := c.FormValue("password")
-	email := c.FormValue("email")
+	user := new(models.User)
+	if err := c.BodyParser(&user); err != nil {
+		return err
+	}
+	email := user.Email
+	password := user.Password
 
 	var userFound models.User
 	ctx, cancel := utils.Context()
