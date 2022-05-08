@@ -24,9 +24,14 @@ func AuthRequired() func(c *fiber.Ctx) error {
 
 func Signup(c *fiber.Ctx) error {
 	user := new(models.User)
-	password := c.FormValue("password")
-	email := c.FormValue("email")
-	username := c.FormValue("username")
+	if err := c.BodyParser(user); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request",
+		})
+	}
+	password := user.Password
+	email := user.Email
+	username := user.Username
 
 	ctx, cancel := utils.Context()
 	defer cancel()
