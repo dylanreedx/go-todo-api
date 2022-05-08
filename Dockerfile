@@ -1,4 +1,4 @@
-FROM golang:1.16-buster AS build
+FROM --platform=linux/amd64 golang:1.16-buster AS build
 WORKDIR /app
 COPY . .
 RUN go mod download
@@ -14,7 +14,6 @@ COPY --from=build /api /api
 COPY --from=build /app/.env .
 
 EXPOSE 3001
-USER nonroot:nonroot
 ENTRYPOINT [ "/api" ]
 
 

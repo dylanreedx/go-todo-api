@@ -38,7 +38,13 @@ In the process of learning, I thought it would be best to learn in a self-guided
 - [ ] deploy
 
   - [ ] figure out docker and maybe kubernetes
-  - [ ] how to deploy to heroku or digital ocean
+  - ```[ ] how to deploy to heroku or digital ocean~~~
+
+    ```
+  - [x] deploy on aws
+    - [ ] fix https certificate
+  - [ ] made env public for tests with docker
+  - [ ] successfully deployed to AWS though the public address do not work
 
 - [ ] frontend
   - [ ] scaffold
